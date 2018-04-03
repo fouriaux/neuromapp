@@ -38,6 +38,8 @@ struct input_parameters{
     char * d;
     /** key for the storage */
     char * name;
+    /** solver to load */
+    char * plugin_lib;
 };
 
 /** \fn cstep_print_usage()

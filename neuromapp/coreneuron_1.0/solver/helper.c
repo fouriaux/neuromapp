@@ -40,6 +40,7 @@ int solver_print_usage() {
     printf("details: \n");
     printf("                 --data [path to the input] \n");
     printf("                 --name [to internally reference the data, default name coreneuron_1.0_solver_data] \n");
+    printf("                 --solver [.so library to use as solver] \n");
     return MAPP_USAGE;
 }
 
@@ -49,7 +50,7 @@ int solver_help(int argc, char* const argv[], struct input_parameters * p)
 
   p->d = "";
   p->name = "coreneuron_1.0_solver_data";
-
+  p->plugin_lib = "";
   optind = 0;
 
   while (1)
@@ -59,11 +60,12 @@ int solver_help(int argc, char* const argv[], struct input_parameters * p)
           {"help", no_argument, NULL, 'h'},
           {"data", required_argument,     NULL, 'd'},
           {"name", required_argument,     NULL, 'n'},
+          {"solver", required_argument,   NULL, 's'},
           {NULL, 0, NULL, 0}
       };
       /* getopt_long stores the option index here. */
       int option_index = 0;
-      c = getopt_long (argc, argv, "d:n:",
+      c = getopt_long (argc, argv, "d:n:s:",
                        long_options, &option_index);
       /* Detect the end of the options. */
       if (c == -1)
@@ -77,6 +79,8 @@ int solver_help(int argc, char* const argv[], struct input_parameters * p)
               p->d = optarg;
               break;
           case 'n': p->name = optarg;
+              break;
+          case 's': p->plugin_lib = optarg;
               break;
           case 'h':
               return solver_print_usage();

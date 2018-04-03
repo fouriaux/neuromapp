@@ -28,16 +28,78 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <dlfcn.h>
+#include <assert.h>
 
 #include "utils/storage/storage.h"
 #include "utils/error.h"
 
 #include "coreneuron_1.0/solver/helper.h"
-#include "coreneuron_1.0/solver/hines.h"
 #include "coreneuron_1.0/solver/solver.h"
 #include "coreneuron_1.0/common/memory/nrnthread.h"
 #include "coreneuron_1.0/common/util/nrnthread_handler.h"
 #include "coreneuron_1.0/common/util/timer.h"
+
+
+typedef struct SolverPlugin {
+    char    library_name [256];
+    char    solver_name  [256];
+    void*   library_handle;
+    NrnThread* (*prepare)(NrnThread* _nt);
+    NrnThread* (*restore)(NrnThread* _nt);
+    void (*nrn_solve_minimal)(NrnThread* _nt);
+} SolverPlugin;
+
+static SolverPlugin current_solver = {
+   .library_handle    = NULL
+};
+
+int aSolverIsLoaded () {
+    return (current_solver.library_handle && current_solver.nrn_solve_minimal);
+}
+int clearSolver () {
+    if (current_solver.library_handle)
+        dlclose (current_solver.library_handle);
+    strcpy  (current_solver.library_name,"undefined");
+    strcpy  (current_solver.solver_name, "undefined");
+    current_solver.library_handle      = NULL;
+    current_solver.nrn_solve_minimal   = NULL;
+    current_solver.prepare             = NULL;
+    current_solver.restore             = NULL;
+}
+
+int loadSolver (const char* file, const char* name) {
+    // passing a NULL name to dlopen is valid and return a valid handle used to search for global symbols in all loaded libraries.
+    // We currently implement a very minimum API, so only one plugin can be opened at a time, and is closed when switching to an other one.
+    // for this reason, we assert name is not NULL
+    assert (file);
+    if (strcmp (file, current_solver.library_name) == 0) {
+        return 0;
+    }
+    clearSolver();
+    if (! (current_solver.library_handle = dlopen(name, RTLD_NOW))) {
+        printf("\n%s\n", dlerror());
+        clearSolver();
+        return -1;
+    }
+    if (!(current_solver.nrn_solve_minimal = dlsym (current_solver.library_handle, "nrn_solve_minimal"))) {
+            printf("\n%s\n", dlerror());
+            clearSolver();
+            return -1;
+    }
+    if (!(current_solver.prepare = dlsym (current_solver.library_handle, "prepare"))) {
+            printf("\n%s\n", dlerror());
+            clearSolver();
+            return -1;
+    }
+    if (!(current_solver.restore = dlsym (current_solver.library_handle, "restore"))) {
+            printf("\n%s\n", dlerror());
+            clearSolver();
+            return -1;
+    }
+    strcpy (current_solver.library_name, file);
+    strcpy (current_solver.solver_name, name);
+}
 
 int coreneuron10_solver_execute(int argc, char * const argv[])
 {
@@ -46,19 +108,26 @@ int coreneuron10_solver_execute(int argc, char * const argv[])
     error = solver_help(argc, argv, &p);
     if(error != MAPP_OK)
         return error;
-
+    if (! (loadSolver(p.plugin_lib, "Hines") && aSolverIsLoaded())) {
+        return -1;
+    }
     NrnThread * nt = (NrnThread *) storage_get (p.name,  make_nrnthread, p.d, free_nrnthread);
 
     if(nt == NULL){
         storage_clear(p.name);
         return MAPP_BAD_DATA;
     }
+    if (current_solver.prepare != NULL){
+        nt = current_solver.prepare (nt);
+    }
     gettimeofday(&tvBegin, NULL);
-    nrn_solve_minimal(nt);
+    current_solver.nrn_solve_minimal(nt);
     gettimeofday(&tvEnd, NULL);
-
+    if (current_solver.restore != NULL){
+        nt = current_solver.restore (nt);
+    }
     timeval_subtract(&tvDiff, &tvEnd, &tvBegin);
-    printf("\n Time For Hines Solver : %ld [s] %ld [us]", tvDiff.tv_sec, (long) tvDiff.tv_usec);
+    printf("\n Time For %s Solver : %ld [s] %ld [us]", current_solver.solver_name, tvDiff.tv_sec, (long) tvDiff.tv_usec);
 
     return error;
 }

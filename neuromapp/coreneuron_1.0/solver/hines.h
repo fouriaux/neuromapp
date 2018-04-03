@@ -49,6 +49,7 @@
             \param NrnThread the data structure for access to the matrix data
          */
         void bksub(NrnThread*);
+
     }
 #else
     /** \fn void nrn_solve_minimal(NrnThread* _nt)
@@ -68,6 +69,7 @@
         \param NrnThread the data structure for access to the matrix data
      */
     void bksub(NrnThread*);
+    
 #endif
 
 #endif
