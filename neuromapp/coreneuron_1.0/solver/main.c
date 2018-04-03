@@ -68,11 +68,8 @@ int clearSolver () {
     current_solver.restore             = NULL;
 }
 
+// NOTE: passing a file as NULL will get default solver loaded (Hines solver, if this one is statically linked)
 int loadSolver (const char* file, const char* name) {
-    // passing a NULL name to dlopen is valid and return a valid handle used to search for global symbols in all loaded libraries.
-    // We currently implement a very minimum API, so only one plugin can be opened at a time, and is closed when switching to an other one.
-    // for this reason, we assert name is not NULL
-    assert (file);
     if (strcmp (file, current_solver.library_name) == 0) {
         return 0;
     }

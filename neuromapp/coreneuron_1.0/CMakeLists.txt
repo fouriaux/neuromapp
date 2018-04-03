@@ -2,6 +2,7 @@
 # Other mini-apps depend on some parts of these mini-apps, enabling them by now until
 # mini-apps are decoupled
 #if(NOT NEUROMAPP_DISABLE_CORENEURON)
+set(SOLVERS_AS_PLUGINS OFF CACHE BOOL "Install solvers as plugins")
     include_directories(${PROJECT_BINARY_DIR})
     include_directories(${PROJECT_SOURCE_DIR})
 
@@ -29,18 +30,24 @@
     add_library (coreneuron10_solver STATIC
                  solver/helper.c
                  solver/main.c)
-
-             add_library (hines_solver SHARED
-                    solver/hines.c)
-
+    if (SOLVERS_AS_PLUGINS)
+        add_library (hines_solver SHARED
+                 solver/hines.c)
+    else()
+        add_library (hines_solver STATIC
+                 solver/hines.c)
+    endif()
+    
     add_library (coreneuron10_cstep STATIC
                  cstep/helper.c
                  cstep/main.c)
+    
+    target_link_libraries(coreneuron10_solver ${CMAKE_DL_LIBS})
+    target_link_libraries(coreneuron10_cstep coreneuron10_kernel coreneuron10_common hines_solver)
 
     add_library (coreneuron10_queue STATIC
                  queue/main.cpp)
-    target_link_libraries(coreneuron10_solver ${CMAKE_DL_LIBS})
-    target_link_libraries(coreneuron10_cstep coreneuron10_kernel coreneuron10_common hines_solver) 
+    
 
     install (TARGETS coreneuron10_kernel coreneuron10_solver coreneuron10_cstep
                      coreneuron10_common coreneuron10_queue hines_solver DESTINATION lib)
