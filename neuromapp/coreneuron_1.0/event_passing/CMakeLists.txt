@@ -25,7 +25,7 @@ install (FILES queueing/pool.h
                queueing/queue.h DESTINATION include)
 target_link_libraries (coreneuron10_queueing
                        coreneuron10_environment
-                       coreneuron10_solver
+                       hines_solver
                        coreneuron10_cstep
                        storage)
 

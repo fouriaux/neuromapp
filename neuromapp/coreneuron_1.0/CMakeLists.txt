@@ -28,8 +28,10 @@
 
     add_library (coreneuron10_solver STATIC
                  solver/helper.c
-                 solver/hines.c
                  solver/main.c)
+
+             add_library (hines_solver SHARED
+                    solver/hines.c)
 
     add_library (coreneuron10_cstep STATIC
                  cstep/helper.c
@@ -37,11 +39,11 @@
 
     add_library (coreneuron10_queue STATIC
                  queue/main.cpp)
-
-    target_link_libraries(coreneuron10_cstep coreneuron10_kernel coreneuron10_common) 
+    target_link_libraries(coreneuron10_solver ${CMAKE_DL_LIBS})
+    target_link_libraries(coreneuron10_cstep coreneuron10_kernel coreneuron10_common hines_solver) 
 
     install (TARGETS coreneuron10_kernel coreneuron10_solver coreneuron10_cstep
-                     coreneuron10_common coreneuron10_queue DESTINATION lib)
+                     coreneuron10_common coreneuron10_queue hines_solver DESTINATION lib)
 
     install (FILES  kernel/mechanism/mechanism.h
                     kernel/kernel.h
