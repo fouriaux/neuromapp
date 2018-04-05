@@ -38,10 +38,6 @@
         \return error message from mapp::mapp_error
     */
      int coreneuron10_solver_execute(int argc, char * const argv[]);
-    
-     
-     int loadSolver  (const char* file,const char* name);
-     int clearSolver ();
 #ifdef __cplusplus
 } // extern "C"
 #endif

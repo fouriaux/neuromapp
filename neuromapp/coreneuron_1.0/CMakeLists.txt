@@ -42,7 +42,7 @@ set(SOLVERS_AS_PLUGINS OFF CACHE BOOL "Install solvers as plugins")
                  cstep/helper.c
                  cstep/main.c)
     
-    target_link_libraries(coreneuron10_solver ${CMAKE_DL_LIBS})
+    target_link_libraries(coreneuron10_solver hines_solver)
     target_link_libraries(coreneuron10_cstep coreneuron10_kernel coreneuron10_common hines_solver)
 
     add_library (coreneuron10_queue STATIC

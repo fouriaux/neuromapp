@@ -9,6 +9,7 @@ foreach(i ${tests})
                                coreneuron10_kernel
                                coreneuron10_solver
                                coreneuron10_queue
+                               hines_solver
                                storage
                                ${Boost_LIBRARIES})
     add_serial_test(${i})
