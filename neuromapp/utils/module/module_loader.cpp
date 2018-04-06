@@ -1,5 +1,5 @@
-#include "utils/plugin/plugin.h"
-#include "utils/plugin/plugin_loader.hpp"
+#include "utils/module/module.h"
+#include "utils/module/module_loader.hpp"
 
 #include <string>
 #include <iostream>

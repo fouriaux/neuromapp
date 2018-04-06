@@ -56,7 +56,7 @@ int coreneuron10_solver_execute(int argc, char * const argv[])
     nrn_solve_minimal(nt);
     gettimeofday(&tvEnd, NULL);
     timeval_subtract(&tvDiff, &tvEnd, &tvBegin);
-    printf("\n Time For %s Solver : %ld [s] %ld [us]", current_solver.solver_name, tvDiff.tv_sec, (long) tvDiff.tv_usec);
+    printf("\n Time For Hines Solver : %ld [s] %ld [us]", tvDiff.tv_sec, (long) tvDiff.tv_usec);
 
     return error;
 }

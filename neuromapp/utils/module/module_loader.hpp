@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utils/plugin/plugin.h"
+#include "utils/module/module.h"
 
 struct LibraryHandler {
     public:
