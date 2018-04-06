@@ -47,6 +47,33 @@
 
 #include "utils/error.h"
 
+
+#define VEC_RHS(i) (_nt->_actual_rhs[(i)])
+#define VEC_V(i) (_nt->_actual_v[(i)])
+
+static void update (NrnThread* _nt) {
+    double* vec_v = &(VEC_V(0));
+    double* vec_rhs = &(VEC_RHS(0));
+    for (int i = 0; i < _nt->end; ++i) {
+           vec_v[i] += vec_rhs[i];
+    }
+}
+
+static void implicit_step (NrnThread* nt) {
+     //Load mechanisms
+     mech_current_NaTs2_t(nt,&(nt->ml[17]));
+     mech_current_Ih(nt,&(nt->ml[10]));
+     mech_current_ProbAMPANMDA_EMS(nt,&(nt->ml[18]));
+
+     //Call solver
+     nrn_solve_minimal(nt);
+
+     //Update the states
+     mech_state_NaTs2_t(nt,&(nt->ml[17]));
+     mech_state_Ih(nt,&(nt->ml[10]));
+     mech_state_ProbAMPANMDA_EMS(nt,&(nt->ml[18]));
+}
+
 int coreneuron10_cstep_execute(int argc, char * const argv[]) {
     struct input_parameters p;
 
@@ -74,18 +101,7 @@ int coreneuron10_cstep_execute(int argc, char * const argv[]) {
     for(int i=0; i < p.step; ++i){
         for(int j=0; j < p.duplicate; ++j){
             for(int k=0; k < p.mindelay_step; k++){ //loop inside min delay
-                //Load mechanisms
-                mech_current_NaTs2_t(ntu[j],&(ntu[j]->ml[17]));
-                mech_current_Ih(ntu[j],&(ntu[j]->ml[10]));
-                mech_current_ProbAMPANMDA_EMS(ntu[j],&(ntu[j]->ml[18]));
-
-                //Call solver
-                nrn_solve_minimal(ntu[j]);
-
-                //Update the states
-                mech_state_NaTs2_t(ntu[j],&(ntu[j]->ml[17]));
-                mech_state_Ih(ntu[j],&(ntu[j]->ml[10]));
-                mech_state_ProbAMPANMDA_EMS(ntu[j],&(ntu[j]->ml[18]));
+                implicit_step(ntu[j]);
             }
         }
     }
