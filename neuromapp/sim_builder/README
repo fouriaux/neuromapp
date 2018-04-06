@@ -1,0 +1,11 @@
+Goal of sim_builder
+===
+
+An easy way to build scenarii of simulations using a description file.
+
+Example:
+    * compare solvers precision
+    * measure performances
+    * unit tests
+    * integration tests
+    * designing simulators
