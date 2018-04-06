@@ -1,0 +1,6 @@
+Cable section analytic
+===
+
+This module provide an analytic solution to the unbranched cable equation.
+The initial purpose is to serve as a test bench to implicit and explicit solvers.
+
