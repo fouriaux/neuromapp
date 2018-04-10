@@ -33,6 +33,7 @@ struct Parameters {
     char* current;
     char* capacitance;
     char* vrest;
+    char* section_size;
     int   size;
 };
 

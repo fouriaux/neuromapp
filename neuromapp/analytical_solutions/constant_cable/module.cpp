@@ -36,8 +36,8 @@ static double*  V;      // this is output  of our module
 static double*  I;      // this is output of our module
 static double*  g;      // conductance 
 static double*  Vrest;  // Resting voltage 
+static int*     s;      // size fo the section
 static Parameters p;
-
 
 extern "C" int constant_cable_configure (int argc, char** argv) {
     help(argc, argv, &p);
@@ -58,12 +58,19 @@ extern "C" int constant_cable_configure (int argc, char** argv) {
                                         [] (void* n) -> void* {return malloc((*(int*)n)*sizeof(double));},
                                         &p.size,
                                         [](void* p) {free(p);});
+    s       = (int*)    storage_get(    p.section_size,
+                                        [] (void* n) -> void* { int* p = (int*) malloc(sizeof(int));
+                                                                *p = *(int*)(n);
+                                                                return p;
+                                                              },
+                                        &p.size,
+                                        [](void* p) {free(p);});
     return status;
 }
 
 extern "C" int constant_cable_execute () {
     double vrest = (*Vrest);
-    for (int x = 0; x < p.size; x++) {
+    for (int x = 0; x < *s; x++) {
         V [x] = vrest;
         I [x] = g[x] * (vrest-vrest);
     }
