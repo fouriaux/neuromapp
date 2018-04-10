@@ -25,7 +25,7 @@
 
 
 
-
+#include <cstdlib>
 #include "utils/error.h"
 #include "utils/storage/storage.h"
 #include "analytical_solutions/helper.h"
@@ -35,23 +35,35 @@
 static double*  V;      // this is output  of our module
 static double*  I;      // this is output of our module
 static double*  g;      // conductance 
-static double*  Vrest;  // 
-static int      size;
+static double*  Vrest;  // Resting voltage 
 static Parameters p;
+
+
 extern "C" int constant_cable_configure (int argc, char** argv) {
-    help(arc, argv, p);
-    int status = MAPP_OK;
-    V       = (double*) storage_get(p.voltage);
-    I       = (double*) storage_get(p.current);
-    g       = (double*) storage_get(p.capacitance);
-    Vrest   = (double*) storage_get(p.vrest);
-    size    = p.section_size;
+    help(argc, argv, &p);
+    int status = mapp::MAPP_OK;
+    V       = (double*) storage_get(    p.voltage,
+                                        [] (void* n) -> void* {return malloc( (*(int*)n)*sizeof(double));},
+                                        &p.size,
+                                        [](void* p) {free(p);});
+    I       = (double*) storage_get(    p.current,
+                                        [] (void* n) -> void* {return malloc((*(int*)n)*sizeof(double));},
+                                        &p.size,
+                                        [](void* p) {free(p);});
+    g       = (double*) storage_get(    p.capacitance,
+                                        [] (void* n) -> void* {return malloc((*(int*)n)*sizeof(double));},
+                                        &p.size,
+                                        [](void* p) {free(p);});
+    Vrest   = (double*) storage_get(    p.vrest,
+                                        [] (void* n) -> void* {return malloc((*(int*)n)*sizeof(double));},
+                                        &p.size,
+                                        [](void* p) {free(p);});
     return status;
 }
 
 extern "C" int constant_cable_execute () {
     double vrest = (*Vrest);
-    for (int x = 0; x < size; x++) {
+    for (int x = 0; x < p.size; x++) {
         V [x] = vrest;
         I [x] = g[x] * (vrest-vrest);
     }

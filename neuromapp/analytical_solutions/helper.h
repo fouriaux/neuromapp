@@ -33,7 +33,7 @@ struct Parameters {
     char* current;
     char* capacitance;
     char* vrest;
-    int   section_size;
+    int   size;
 };
 
 /** \fn print_usage()
@@ -51,5 +51,4 @@ int print_usage();
  */
 int help(int argc, char* const argv[], Parameters * p);
 
-#endif
 
