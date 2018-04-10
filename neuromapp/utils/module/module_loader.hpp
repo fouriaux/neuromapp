@@ -1,12 +1,24 @@
 #pragma once
 
-#include "utils/module/module.h"
 
-struct LibraryHandler {
-    public:
-        Module* get (const char* name);
-    private:
-        int internal_impl;
+#include <string>
+#include "module.h"
+
+struct Module {
+        ModuleConfigure configure;
+        ModuleExecute  execute;
+        ModuleHelp     help;
 };
 
-LibraryHandler* from (const char* file);
+struct Library {
+friend Library from (const char* filename);
+    public:
+        Module module ();
+        ~Library();
+    private:
+        Library (const char* filename, int id);
+        int id;
+        std::string lib_name;
+};
+
+Library* from (const char* filename);

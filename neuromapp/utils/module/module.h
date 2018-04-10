@@ -1,12 +1,7 @@
 #ifndef NEUROMAPP_PLUGIN_HPP
 #define NEUROMAPP_PLUGIN_HPP
 
-typedef int (*moduleConfigure)(int argc, char** argv);
-typedef int (*moduleRun)();
+typedef int  (*ModuleConfigure)(int argc, char** argv); // expected to be named configure
+typedef int  (*ModuleRun)();                            // expected to be named run
+typedef void (*ModuleHelp)();                           // expected to be named help
 
-typedef struct Module {
-    moduleConfigure configure;
-    moduleRun run;
-};
-
-#endif
