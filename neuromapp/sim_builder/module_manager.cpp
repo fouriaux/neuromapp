@@ -1,5 +1,9 @@
 #include <iostream>
 #include "utils/module/module_loader.hpp"
+#ifdef NEUROMAPP_CURSOR
+    #include <readline/readline.h>
+    #include <readline/history.h>
+#endif
 
 /*
  * Module Manager act on top of module loader and abstract communications with driver
@@ -39,24 +43,46 @@ void showLoadedModules () {
 }
 
 void help () {
-    //TODO display allowed commands
+    std::cout << "avail commands: " << std::endl;
+    std::cout << "\tl" << std::endl;
+    std::cout << "\th" << std::endl;
+    std::cout << "\ts" << std::endl;
+    std::cout << "\tr" << std::endl;
+    std::cout << "\t?" << std::endl;
+    std::cout << "\tq" << std::endl;
 }
+
 int main (int argc, char** argv) {
- while (1) {
+    help();
+    while (1) {
     // listening commands
+#ifdef NEUROMAPP_CURSOR
+    char* input = readline("");
+    add_history(input);
+    std::string command(input);
+#else
+    std::string command;
+    std::getline(std::cin, command);
+#endif
     // extract command and args from string filled by std::cin
-    switch (command) {
+    std::vector<std::string> command_v;
+    command_v.push_back(argv[0]);
+    std::istringstream command_stream(command);
+    std::istream_iterator<std::string> wb(command_stream),we;
+    std::copy(wb,we,std::back_inserter(command_v));
+    mapp::argv_data A(command_v.begin(),command_v.end());
+    switch (commands_v[1][0]) {
         case 'q':
             return 0;
             break;
         case 'l':
-            addModule(argv[1], argv[2]);
+            addModule(A.argc(), A.argv());
             break;
         case 'h':
-            showModuleHelp(argv[1], argv[2]);
+            showModuleHelp(A.argc(), A.argv());
             break;
         case 's':
-            showLoadedModules(argv[1], argv[2]);
+            showLoadedModules(A.argc(), A.argv());
             break;
        case  'r':
             run ();
