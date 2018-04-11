@@ -39,8 +39,8 @@ static double*  Vrest;  // Resting voltage
 static int*     s;      // size fo the section
 static Parameters p;
 
-extern "C" int constant_cable_configure (int argc, char** argv) {
-    help(argc, argv, &p);
+extern "C" int configure (int argc, char** argv) {
+    parse_args(argc, argv, &p);
     int status = mapp::MAPP_OK;
     V       = (double*) storage_get(    p.voltage,
                                         [] (void* n) -> void* {return malloc( (*(int*)n)*sizeof(double));},
@@ -68,7 +68,7 @@ extern "C" int constant_cable_configure (int argc, char** argv) {
     return status;
 }
 
-extern "C" int constant_cable_execute () {
+extern "C" int execute () {
     double vrest = (*Vrest);
     for (int x = 0; x < *s; x++) {
         V [x] = vrest;
@@ -76,6 +76,6 @@ extern "C" int constant_cable_execute () {
     }
 }
 
-extern "C" int constant_cable_help () {
+extern "C" int help () {
     return print_usage();
 }

@@ -43,13 +43,13 @@ struct Parameters {
  */
 int print_usage();
 
-/** \fn int solver_help(int argc, char * const argv[], struct input_parameters * p)
+/** \fn int parse_args(int argc, char * const argv[], struct input_parameters * p)
     \brief Interpret the command line and extract/set up the needed parameter
     \param argc The number of argument in the command line
     \param the command line
     \param p the structure where the input data are saved
     \return may return error code MAPP_BAD_ARG, MAPP_BAD_DATA if the arguments are wrong
  */
-int help(int argc, char* const argv[], Parameters * p);
+int parse_args(int argc, char* const argv[], Parameters * p);
 
 

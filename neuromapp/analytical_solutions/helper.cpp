@@ -44,7 +44,7 @@ int print_usage() {
 }
 
 
-int help(int argc, char * const argv[], struct Parameters * p)
+int parse_args(int argc, char * const argv[], struct Parameters * p)
 {
   int c;
 
