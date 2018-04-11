@@ -165,6 +165,23 @@ void *storage_get(const char *name, storage_ctor maker,
 };
 
 /**
+ * register a associated name to an already allocated data pointer
+ * It is user responsibility to allocate and deallocate associated memory
+ * @param name keyword referring to the data (user-defined)
+ * @param data pointer refering to valid memory address (defined by user)
+ * @return status: MAPP_OK if pointer is correctly registered, MAPP_BAD_ARG if there is name is already in use.
+ */
+int storage_register(const char* name, void* p) {
+    if(neuromapp_data.has(name)) return MAPP_BAD_ARG;
+    storage_ctor_wrapper mk = { [](void* p){return p;},
+                                p, 
+                                [](void* p){return;}};
+    neuromapp_data.get<ref_count_ptr>(name, mk);
+    return MAPP_BAD_ARG;
+}
+
+
+/**
  * Put new data to a given key
  * @param name keyword referring to the data (user-defined)
  * @param item

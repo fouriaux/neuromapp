@@ -39,7 +39,7 @@ enum mapp_error {
     MAPP_USAGE,
     MAPP_BAD_DATA,
     MAPP_BAD_THREAD,
-    MAPP_UNKNOWN_ERROR
+    MAPP_UNKNOWN_ERROR,
 };
 
 #ifdef __cplusplus

@@ -46,6 +46,8 @@ extern "C" {
 void *storage_get(const char *name, storage_ctor maker,
                   storage_ctor_context context, storage_dtor destroyer );
 
+int storage_register(const char* name, void* p);
+
 /** C interface flush the memory */
 void storage_put(const char *name, void *item, storage_dtor dtor);
 
