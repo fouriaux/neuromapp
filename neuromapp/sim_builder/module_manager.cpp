@@ -1,9 +1,11 @@
+#include <vector>
 #include <iostream>
 #include "utils/module/module_loader.hpp"
 #ifdef NEUROMAPP_CURSOR
     #include <readline/readline.h>
     #include <readline/history.h>
 #endif
+#include "utils/argv_data.h"
 
 /*
  * Module Manager act on top of module loader and abstract communications with driver
@@ -13,13 +15,11 @@
  *
  */
 
-#include <vector>
 
 static int t;
 static int dt;
 static int final_t;
-std::vector<int> exec_queue_handler;
-std::vector<ModuleExecute> exec_queue;
+std::vector<int> modules;
 int run () {
        while (t < final_t) {
             for (auto& exec : exec_queue)
@@ -29,7 +29,10 @@ int run () {
 }
 
 int addModule (const char* library_name, const char* options) {
-    // TODO do configure and enqueue exec into exec_queue
+    Library* l = from (library_name);
+    l.module().configure(options);
+    exec_queue.push_back(l.module().execute);
+    exec_queue_handler.push_back(l.id);
 }
 
 void showModuleHelp (int handler) {
@@ -76,7 +79,7 @@ int main (int argc, char** argv) {
             return 0;
             break;
         case 'l':
-            addModule(A.argc(), A.argv());
+            addModule(commands_v[2]);
             break;
         case 'h':
             showModuleHelp(A.argc(), A.argv());
