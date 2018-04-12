@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <list>
 #include <stack>
 #include <string>
 #include <iostream>
@@ -18,6 +19,8 @@ static std::vector<ModuleExecute>       executes;
 static std::vector<ModuleHelp>          helps;
 
 namespace mapp_module {
+    int execute   (ModuleId id) {return executes[id](); }
+    int help      (ModuleId id) {return helps[id](); }
 
     Library* from (const char* filename) {
         std::string key_name = "";
@@ -65,9 +68,9 @@ namespace mapp_module {
     }
 
 
-    ModuleId Library::createModule (const char* args) {
+    ModuleId Library::create (const char* args) {
         std::vector<char *> argv;
-        std::istringstream ss(cmd);
+        std::istringstream ss(args);
         std::string arg;
         std::list<std::string> ls;
         while (ss >> arg)
