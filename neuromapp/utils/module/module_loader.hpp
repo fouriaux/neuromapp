@@ -4,21 +4,18 @@
 #include <string>
 
 namespace mapp_module {
-
-    typedef int ModuleId;
-
-    struct Library {
+    class Library {
         friend Library* from (const char* filename);
         public:
-        ModuleId create (const char* args);
-        ~Library();
+            int create (const char* args);
+            ~Library();
+            const int id;
+            const std::string lib_name;
         private:
-        Library (const char* filename, int id);
-        int id;
-        std::string lib_name;
+            Library (std::string filename, int id);
     };
 
     Library* from (const char* filename);
-    int execute   (ModuleId);
-    int help      (ModuleId);
+    int  execute  (int);
+    void help     (int);
 }

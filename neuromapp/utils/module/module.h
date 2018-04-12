@@ -2,7 +2,7 @@
 #define NEUROMAPP_MODULE_HPP
 
 typedef int  (*ModuleConfigure)(int argc, char** argv); // expected to be named configure
-typedef int  (*ModuleRun)();                            // expected to be named run
+typedef int  (*ModuleExecute)();                        // expected to be named execute
 typedef void (*ModuleHelp)();                           // expected to be named help
 
 #endif

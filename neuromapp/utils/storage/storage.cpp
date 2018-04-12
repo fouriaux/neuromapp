@@ -34,7 +34,6 @@ extern "C" {
 #include "utils/storage/neuromapp_data.h"
 #include "utils/error.h"
 #include <iostream>
-
 /**
  * destructor of the storage class
  */
@@ -160,8 +159,11 @@ struct storage_ctor_wrapper {
 void *storage_get(const char *name, storage_ctor maker,
                   storage_ctor_context context, storage_dtor dtor)
 {
-   storage_ctor_wrapper mk = {maker, context, dtor};
-   return neuromapp_data.get<ref_count_ptr>(name, mk).get();
+    if (maker && dtor) {
+        storage_ctor_wrapper mk = {maker, context, dtor};
+        return neuromapp_data.get<ref_count_ptr>(name, mk).get();
+    } else
+        return neuromapp_data.get<ref_count_ptr>(name).get();
 };
 
 /**
@@ -172,12 +174,14 @@ void *storage_get(const char *name, storage_ctor maker,
  * @return status: MAPP_OK if pointer is correctly registered, MAPP_BAD_ARG if there is name is already in use.
  */
 int storage_register(const char* name, void* p) {
-    if(neuromapp_data.has<ref_count_ptr>(name)) return mapp::MAPP_BAD_ARG;
+    if(neuromapp_data.has<ref_count_ptr>(name)) {
+        return mapp::MAPP_BAD_ARG;
+    }
     storage_ctor_wrapper mk = { [](void* p){return p;},
                                 p, 
                                 [](void* p){return;}};
     neuromapp_data.get<ref_count_ptr>(name, mk);
-    return mapp::MAPP_BAD_ARG;
+    return mapp::MAPP_OK;
 }
 
 

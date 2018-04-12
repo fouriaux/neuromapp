@@ -1,3 +1,4 @@
+
 add_subdirectory (utils)
 option(NEUROMAPP_COMPRESSION "Build the compression miniapp" ON)
 if(NEUROMAPP_COMPRESSION)
@@ -12,4 +13,4 @@ add_subdirectory (coreneuron_1.0)
 add_subdirectory (replib)
 add_subdirectory (iobench)
 add_subdirectory (app)
-add_subdirectory(module_example)
+add_subdirectory (module_example)

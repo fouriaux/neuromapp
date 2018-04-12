@@ -5,7 +5,9 @@ include_directories(${PROJECT_SOURCE_DIR})
 configure_file("${PROJECT_SOURCE_DIR}/neuromapp/utils/mpi/mpi_helper.h.in"
                "${PROJECT_BINARY_DIR}/neuromapp/utils/mpi/mpi_helper.h")
 
+add_library (module_loader
+             module/module_loader.cpp)
+
 add_library (storage
              storage/neuromapp_data.cpp
              storage/storage.cpp )
-                        

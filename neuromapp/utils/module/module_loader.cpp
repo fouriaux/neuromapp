@@ -11,7 +11,7 @@
 #include <dlfcn.h>
 
 
-static std::map <std::string, Library>  libraries;
+static std::map <std::string, mapp_module::Library*>  libraries;
 static std::stack <int>                 freehandles;
 static std::vector<void*>               lib_handles;
 static std::vector<ModuleConfigure>     configures;
@@ -19,8 +19,8 @@ static std::vector<ModuleExecute>       executes;
 static std::vector<ModuleHelp>          helps;
 
 namespace mapp_module {
-    int execute   (ModuleId id) {return executes[id](); }
-    int help      (ModuleId id) {return helps[id](); }
+    int execute   (int id)  {return executes[id](); }
+    void help      (int id) {return helps[id](); }
 
     Library* from (const char* filename) {
         std::string key_name = "";
@@ -29,7 +29,7 @@ namespace mapp_module {
             return nullptr;
         }
         key_name.assign(filename);
-        if (! libs.find(key_name)) {
+        if (libraries.find(key_name) == libraries.end()) {
             void* lib = dlopen (filename, RTLD_LOCAL| RTLD_LAZY);
             if (! lib) {
                 std::cerr << dlerror() << std::endl;
@@ -40,7 +40,8 @@ namespace mapp_module {
             ModuleHelp      help = (ModuleHelp) dlsym(lib, "help");
             int handle = -1;
             if (freehandles.size()) {
-                handle = freehandles.pop();
+                handle = freehandles.top();
+                freehandles.pop();
                 lib_handles[handle] = lib;
                 configures[handle]  = conf;
                 executes[handle]    = exec;
@@ -52,9 +53,10 @@ namespace mapp_module {
                 helps.push_back(help);
                 handle = lib_handles.size() -1;
             }
-            libs[key_name] = Library(key_name, handle);
+            Library* l = new Library(key_name, handle);
+            libraries[key_name] = l;
         }
-        return &libs[key_name];
+        return libraries[key_name];
     }
 
     static void close (Library& lib) {
@@ -67,8 +69,7 @@ namespace mapp_module {
         freehandles.push(lib.id);
     }
 
-
-    ModuleId Library::create (const char* args) {
+    int Library::create (const char* args) {
         std::vector<char *> argv;
         std::istringstream ss(args);
         std::string arg;
@@ -83,8 +84,7 @@ namespace mapp_module {
         return id;
     }
 
-    Library::Library(const char* filename, int id): lib_name(filename), id(id) {
-    }
+    Library::Library(std::string filename, int id): lib_name(filename), id(id){}
 
     Library::~Library() {
         close (*this);

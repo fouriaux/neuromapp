@@ -6,12 +6,15 @@ static double* I;
 static double* V;
 
 
-int configure (int argc, char** argv) {
-    t = storage_get(argv[0]);
-    V = storage_get(argv[1]);
-    I = storage_get(argv[2]);
+extern "C" int configure (int argc, char** argv) {
+    t = (double*) storage_get(argv[0], nullptr, nullptr, nullptr);
+    V = (double*) storage_get(argv[1], nullptr, nullptr, nullptr);
+    I = (double*) storage_get(argv[2], nullptr, nullptr, nullptr);
 }
 
-int execute () {
+extern "C" int execute () {
     std::cout << *t << " ms :\tI = " << *I << "mA\t V = " << *V << "mV" << std::endl;
+}
+extern "C" void help () {
+    std::cout << "Hello World" << std::endl;
 }
