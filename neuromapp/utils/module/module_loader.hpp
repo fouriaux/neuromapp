@@ -2,23 +2,25 @@
 
 
 #include <string>
-#include "module.h"
 
-struct Module {
-        ModuleConfigure configure;
-        ModuleExecute  execute;
-        ModuleHelp     help;
-};
+namespace mapp_module {
 
-struct Library {
-friend Library from (const char* filename);
-    public:
-        Module module ();
+    typedef int ModuleId;
+
+    struct Library {
+        friend Library from (const char* filename);
+        public:
+        //TODO        void createAs(const char* name);
+        ModuleId create (const char* args);
         ~Library();
-    private:
+        private:
         Library (const char* filename, int id);
         int id;
         std::string lib_name;
-};
+    };
 
-Library* from (const char* filename);
+    Library* from (const char* filename);
+    mapp_error execute   (ModuleId);
+    mapp_error configure (ModuleId);
+    mapp_error help      (ModuleId);
+}

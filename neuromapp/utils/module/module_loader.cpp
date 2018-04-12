@@ -6,16 +6,8 @@
 #include <stack>
 #include <string>
 #include <iostream>
+#include <sstream>
 #include <dlfcn.h>
-
-
-/*
- * Test case: 
- *  Module m = from (filename).module();
- *  int status = m.configure(m, argc, argv);
- *  if (status == MMAPP_OK)
- *      m.execute();
- */
 
 
 static std::map <std::string, Library>  libraries;
@@ -25,63 +17,73 @@ static std::vector<ModuleConfigure>     configures;
 static std::vector<ModuleExecute>       executes;
 static std::vector<ModuleHelp>          helps;
 
+namespace mapp_module {
 
-Library* from (const char* filename) {
-    std::string key_name = "";
-    if (filename == NULL) {
+    Library* from (const char* filename) {
+        std::string key_name = "";
+        if (filename == NULL) {
             std::cerr << "ERROR: Library from empty filename (global scope) is not supported" << std::endl;
             return nullptr;
-    }
-    key_name.assign(filename);
-    if (! libs.find(key_name)) {
-        void* lib = dlopen (filename, RTLD_LOCAL| RTLD_LAZY);
-        if (! lib) {
-            std::cerr << dlerror() << std::endl;
-            return nullptr;
         }
-        ModuleConfigure conf = (ModuleConfigure) dlsym(lib, "configure");
-        ModuleExecute   exec = (ModuleExecute) dlsym(lib, "execute");
-        ModuleHelp      help = (ModuleHelp) dlsym(lib, "help");
-        int handle = -1;
-        if (freehandles.size()) {
-            handle = freehandles.pop();
-            lib_handles[handle] = lib;
-            configures[handle]  = conf;
-            executes[handle]    = exec;
-            helps[handle]       = help;
-        } else {
-            lib_handles.push_back(lib);
-            configures.push_back(conf);
-            executes.push_back(exec);
-            helps.push_back(help);
-            handle = lib_handles.size() -1;
+        key_name.assign(filename);
+        if (! libs.find(key_name)) {
+            void* lib = dlopen (filename, RTLD_LOCAL| RTLD_LAZY);
+            if (! lib) {
+                std::cerr << dlerror() << std::endl;
+                return nullptr;
+            }
+            ModuleConfigure conf = (ModuleConfigure) dlsym(lib, "configure");
+            ModuleExecute   exec = (ModuleExecute) dlsym(lib, "execute");
+            ModuleHelp      help = (ModuleHelp) dlsym(lib, "help");
+            int handle = -1;
+            if (freehandles.size()) {
+                handle = freehandles.pop();
+                lib_handles[handle] = lib;
+                configures[handle]  = conf;
+                executes[handle]    = exec;
+                helps[handle]       = help;
+            } else {
+                lib_handles.push_back(lib);
+                configures.push_back(conf);
+                executes.push_back(exec);
+                helps.push_back(help);
+                handle = lib_handles.size() -1;
+            }
+            libs[key_name] = Library(key_name, handle);
         }
-        libs[key_name] = Library(key_name, handle);
+        return &libs[key_name];
     }
-    return &libs[key_name];
-}
 
-static void close (Library& lib) {
-    dlclose (lib_handles[lib.id]);
-    lib_handles[lib.id] = nullptr;
-    configures[lib.id]  = nullptr;
-    executes[lib.id]    = nullptr;
-    helps[lib.id]       = nullptr;
-    libraries.erase(lib.lib_name);
-    freehandles.push(lib.id);
-}
+    static void close (Library& lib) {
+        dlclose (lib_handles[lib.id]);
+        lib_handles[lib.id] = nullptr;
+        configures[lib.id]  = nullptr;
+        executes[lib.id]    = nullptr;
+        helps[lib.id]       = nullptr;
+        libraries.erase(lib.lib_name);
+        freehandles.push(lib.id);
+    }
 
 
-Module Library::module () {
-    return Module { .configure = configures[id], 
-                    .execute = executes[id], 
-                    .help = helps[id]
-                  };
-}
+    ModuleId Library::createModule (const char* args) {
+        std::vector<char *> argv;
+        std::istringstream ss(cmd);
+        std::string arg;
+        std::list<std::string> ls;
+        while (ss >> arg)
+        {
+            ls.push_back(arg);
+            argv.push_back(const_cast<char*>(ls.back().c_str()));
+        }
+        argv.push_back(0);  // need terminating null pointer 
+        configures[id] (argv.size(), argv.data());
+        return id;
+    }
 
-Library::Library(const char* filename, int id): lib_name(filename), id(id) {
-}
+    Library::Library(const char* filename, int id): lib_name(filename), id(id) {
+    }
 
-Library::~Library() {
-    close (*this);
-}
+    Library::~Library() {
+        close (*this);
+    }
+} // namespace mapp_module
