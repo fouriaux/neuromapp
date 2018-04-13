@@ -12,15 +12,15 @@ int main (int argc, char** argv) {
     double delta_t = 0.025;
     storage_register ("time",        (void*) &t);
     mapp_module::Library* lib;
-    lib = mapp_module::from("./libfixed_pulse.dylib");
+    lib = mapp_module::from("./libfixed_pulse.so");
     if (! lib) return 0;
     int fixed_pulse        = lib->create("time dV_pulse ");
     
-    lib = mapp_module::from("./libpassive_membrane.dylib");
+    lib = mapp_module::from("./libpassive_membrane.so");
     if (! lib) return 0;
     int passive_membrane   = lib->create("time dV_pulse V_passive");
 
-    lib = mapp_module::from("./libbasic_validator.dylib");
+    lib = mapp_module::from("./libbasic_validator.so");
     if (! lib) return 0;
     int validator          = lib->create("time V_passive dV_pulse");
  
