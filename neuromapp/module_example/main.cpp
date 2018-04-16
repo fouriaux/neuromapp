@@ -7,23 +7,15 @@
  */
 
 int main (int argc, char** argv) {
-   // contrary to get, create_new return an error if a key with this name already exist
     double t = 0;
     double delta_t = 0.025;
+    mapp_module::use("./");
     storage_register ("time",        (void*) &t);
-    mapp_module::Library* lib;
-    lib = mapp_module::from("./libfixed_pulse.so");
-    if (! lib) return 0;
-    int fixed_pulse        = lib->create("time dV_pulse ");
-    
-    lib = mapp_module::from("./libpassive_membrane.so");
-    if (! lib) return 0;
-    int passive_membrane   = lib->create("time dV_pulse V_passive");
 
-    lib = mapp_module::from("./libbasic_validator.so");
-    if (! lib) return 0;
-    int validator          = lib->create("time V_passive dV_pulse");
- 
+    int fixed_pulse        = mapp_module::from("fixed_pulse")->create("time dV_pulse ");
+    int passive_membrane   = mapp_module::from("passive_membrane")->create("time dV_pulse V_passive");
+    int validator          = mapp_module::from("basic_validator")->create("time V_passive dV_pulse");
+
     for (t = 0; t < 1; t+=delta_t) {
         mapp_module::execute (fixed_pulse);
         mapp_module::execute (passive_membrane);

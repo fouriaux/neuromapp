@@ -15,6 +15,7 @@ namespace mapp_module {
             Library (std::string filename, int id);
     };
 
+    void use      (const char* path);
     Library* from (const char* filename);
     int  execute  (int);
     void help     (int);

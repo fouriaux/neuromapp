@@ -17,11 +17,28 @@ static std::vector<void*>               lib_handles;
 static std::vector<ModuleConfigure>     configures;
 static std::vector<ModuleExecute>       executes;
 static std::vector<ModuleHelp>          helps;
+static std::string module_path = std::string("./");
+
+static std::string get_lib_path (const char* filename) {
+    std::string result = "";
+#ifdef __APPLE__
+
+#else // Linux world
+    
+#endif
+    result += module_path;
+    result += "lib";
+    result += filename;
+    result += ".so";
+    return result;
+}
 
 namespace mapp_module {
     int execute   (int id)  {return executes[id](); }
     void help      (int id) {return helps[id](); }
-
+    void use (const char* path) {
+        module_path = std::string(path);
+    }
     Library* from (const char* filename) {
         std::string key_name = "";
         if (filename == NULL) {
@@ -30,7 +47,7 @@ namespace mapp_module {
         }
         key_name.assign(filename);
         if (libraries.find(key_name) == libraries.end()) {
-            void* lib = dlopen (filename, RTLD_LOCAL| RTLD_LAZY);
+            void* lib = dlopen (get_lib_path(filename).c_str(), RTLD_LOCAL| RTLD_LAZY);
             if (! lib) {
                 std::cerr << dlerror() << std::endl;
                 return nullptr;
