@@ -10,10 +10,31 @@
  *     dt
  *
  *     idem for m and h
+ *
+ * Neuromapp, Copyright (c), 2018,
+ * Jeremy FOURIAUX - Swiss Federal Institute of technology in Lausanne,
+ * jeremy.fouriaux@epfl.ch,
+ * All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library.
+ *
  */
 #include <iostream>
 #include <math.h>
 #include <cstdlib>
+#include "utils/error.h"
+
 static const double PERIOD = 0.1;
 
 static const double E_k  = -72.14;   // (mV)
@@ -112,10 +133,14 @@ void print (double t) {
              << I << std::endl;
 }
 
-int main (int argc, char** argv) {
+int hh_fe_execute (int argc, char** argv) {
     double t = 0.0;
     if(argc == 2) {
         delta_t = atof(argv[1]);
+    } else {
+        std::cout << "Usage: hh_fe Δt" << std::endl;
+        std::cout << "Execute single compartment simulation of HH model using Forward Euler numerical method" << std::endl;
+        return mapp::MAPP_USAGE;
     }
     printHeader ();
     init(v_euler);
@@ -124,5 +149,5 @@ int main (int argc, char** argv) {
         forward_euler(I, v_euler);
         print (t);
     }
-    return 0;
+    return mapp::MAPP_OK; // 0 ok, 1 not ok
 }

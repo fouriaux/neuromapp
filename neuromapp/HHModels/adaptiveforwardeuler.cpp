@@ -1,5 +1,39 @@
+/*
+ *                  Solving HH model using adaptative Forward Euler
+ *
+ *     dVm     1   /                                                        \
+ *     ---  = ----*| I - g_Na*m³*h(v-E_Na) - G_K*n⁴(v - E_K) - gl(v - El)   |
+ *     dt      Cm  \                                                        /
+ *
+ *     dn
+ *     ---  =  alpha_n(v)*(1-n) - beta_n(v)*(n)
+ *     dt
+ *
+ *     idem for m and h
+ *
+ * Neuromapp, Copyright (c), 2018,
+ * Jeremy FOURIAUX - Swiss Federal Institute of technology in Lausanne,
+ * jeremy.fouriaux@epfl.ch,
+ * All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library.
+ *
+ */
+
 #include <iostream>
 #include <math.h>
+#include "utils/error.h"
 
 static const double PERIOD = 0.1;
 
@@ -18,20 +52,6 @@ static double m = 0.0;
 static double h = 0.0;
 static double delta_t = 0.05; // timestep size (ms) 
 static const double end_of_times = 25.0;
-/*
- *                           Solving HH model
- *
- *     dVm     1   /                                                        \
- *     ---  = ----*| I - g_Na*m³*h(v-E_Na) - G_K*n⁴(v - E_K) - gl(v - El)   |
- *     dt      Cm  \                                                        /
- *
- *     dn
- *     ---  =  alpha_n(v)*(1-n) - beta_n(v)*(n)
- *     dt
- *
- *     idem for m and h
- */
-
 double get_alpha_n (double v) {
     return (0.01*(v + 50.0))/(1 - exp(-(v + 50.0)/10.0));
 }
@@ -113,7 +133,7 @@ void print (double t) {
              << I << std::endl;
 }
 
-int main (int argc, char** argv) {
+int hh_afe_execute (int argc, char** argv) {
     double t = 0.0;
     printHeader ();
     init(v_euler);
@@ -125,5 +145,5 @@ int main (int argc, char** argv) {
         print (t);
         delta_t = Cm/(m*m*m*h*g_Na + n*n*n*n*g_K + g_l);
     }
-    return 0;
+    return mapp::MAPP_OK; // 0 ok, 1 not ok
 }

@@ -11,17 +11,30 @@
  *
  *     idem for m and h
  *
+ * Neuromapp, Copyright (c), 2018,
+ * Jeremy FOURIAUX - Swiss Federal Institute of technology in Lausanne,
+ * jeremy.fouriaux@epfl.ch,
+ * All rights reserved.
  *
- *     Crank Nicholson solution:
- *     We first interleave time steps for v and all m,n,h computations.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library.
  *
  */
 
 #include <iostream>
 #include <math.h>
 #include <cstdlib>
+#include "utils/error.h"
 
 static const double PERIOD = 0.1;
 
@@ -163,11 +176,15 @@ void init () {
     }
 }
 
-int main (int argc, char** argv) {
+int hh_cn_execute (int argc, char** argv) {
     double t = 0.0;
     if(argc == 2) {
         delta_t = atof(argv[1]);
         delta_t_inv = 1.0/ delta_t;
+    } else {
+        std::cout << "Usage: hh_cn Δt" << std::endl;
+        std::cout << "Execute single compartment simulation of HH model using CrankNicholson numerical method" << std::endl;
+        return mapp::MAPP_USAGE;
     }
     printHeader ();
     init();
@@ -176,5 +193,5 @@ int main (int argc, char** argv) {
         crank_nicholson(I);
         print (t);
     }
-    return 0;
+    return mapp::MAPP_OK; // 0 ok, 1 not ok
 }
